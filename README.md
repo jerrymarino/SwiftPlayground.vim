@@ -6,6 +6,8 @@
 
 It compiles the playground when you save.
 
+*Errors, Warnings, and Code Completions are provided by [iCompleteme](https://github.com/jerrymarino/icompleteme).*
+
 ## Installation
 
 Use your plugin manager of choice.
