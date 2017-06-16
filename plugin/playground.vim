@@ -1,8 +1,13 @@
 let s:path = fnamemodify(expand('<sfile>:p:h'), ':h')
 
-" Hook in to the write command
-autocmd BufWritePost * call s:OnBufWritePost()
+autocmd BufWritePost *.playground/Contents.swift call s:OnBufWritePost()
+" Bind to all: we close on entering different file types
 autocmd BufEnter * call s:OnBufEnter()
+
+autocmd CursorMoved *.playground/Contents.swift call s:OnCursorMoved()
+autocmd CursorMovedI *.playground/Contents.swift call s:OnCursorMovedI()
+
+let s:LastSwiftTopline = 0
 
 " When the user writes the file we'll execute the runner program
 function! s:OnBufWritePost()
@@ -34,12 +39,36 @@ function! s:OnBufEnter()
     endif
 endfunction
 
+function! SyncBuffers()
+    let topline = line("w0")
+
+    if topline != s:LastSwiftTopline
+        let s:LastSwiftTopline = topline
+        let cur_bufnr = bufnr('%')
+        let play_bufnr = bufnr('__Playground__')
+        let play_bufwinnr = bufwinnr(play_bufnr)
+
+        if play_bufwinnr == -1
+            return
+        endif
+
+        let winview = winsaveview()
+        silent! execute play_bufwinnr . " wincmd w"
+        call winrestview(winview)
+        silent! execute bufwinnr(cur_bufnr ) . " wincmd w"
+    endif
+endfunction
+
+function! s:OnCursorMovedI()
+    call SyncBuffers()
+endfunction
+
+function! s:OnCursorMoved()
+    call SyncBuffers()
+endfunction
+
 function! ExecutePlayground()
     let cur_file = expand('%:p')
-    " Check if the current buffer is in swift
-    if match(cur_file, ".playground/Contents.swift") == -1
-        return
-    endif
 
     let src_root = s:path
     let cur_file = expand('%:p')
@@ -104,9 +133,9 @@ function! ExecutePlayground()
 
     " Sync buffers. FIXME: This should really be an autocmd on scroll.
     if winview != {}
-        :call winrestview(winview)
+        call winrestview(winview)
     else
-        :call cursor(1, 0)
+        call cursor(1, 0)
     endif
 
     silent! execute bufwinnr(cur_bufnr ) . " wincmd w"
