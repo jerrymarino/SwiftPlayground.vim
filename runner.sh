@@ -1,3 +1,6 @@
+mkdir -p build
+ditto main.swift build/main.swift
+
 swiftc \
 -Xfrontend \
 -playground \
@@ -5,9 +8,9 @@ swiftc \
 -debugger-support \
 -module-name Playgound \
 -o \
-main \
-main.swift \
+build/main \
+build/main.swift \
 PlaygroundRuntime.swift
 
-./main
+./build/main
 
