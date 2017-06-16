@@ -1,6 +1,12 @@
-// If you're modifying this file to add or modify function signatures, you
-// should be notifying the maintainer of PlaygroundLogger and also the
-// maintainer of lib/Sema/PlaygroundTransform.cpp.
+// PlaygroundRuntime.swift provides the logging builtins for playground.
+//
+// These functions are executed by the Standard Library for code compiled with
+// the playground frontend action.
+//
+// @see the transform logic here
+// https://github.com/apple/swift/blob/master/lib/Sema/PlaygroundTransform.cpp
+
+
 struct SourceRange {
   let sl : Int
   let el : Int
