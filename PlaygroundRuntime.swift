@@ -13,23 +13,28 @@ struct SourceRange {
 
 class LogRecord {
   let text : String
+  let api : String
 
   init(api : String, object : Any, name : String, id : Int, range : SourceRange) {
     var object_description : String = ""
+    self.api = api
     print(object, terminator: "", to: &object_description)
-    text = range.text + " " + api + "[" + name + "='" + object_description + "']"
+    text = range.text + " " + api + name + "=" + object_description
   }
   init(api : String, object : Any, name : String, range : SourceRange) {
     var object_description : String = ""
+    self.api = api
     print(object, terminator: "", to: &object_description)
-    text = range.text + " " + api + "[" + name + "='" + object_description + "']"
+    text = range.text + " " + api + name + "=" + object_description
   }
   init(api : String, object: Any, range : SourceRange) {
     var object_description : String = ""
+    self.api = api
     print(object, terminator: "", to: &object_description)
-    text = range.text + " " + api + "['" + object_description + "']"
+    text = range.text + " " + api + object_description
   }
   init(api: String, range : SourceRange) {
+    self.api = api
     text = range.text + " " + api
   }
 }
@@ -55,5 +60,10 @@ func $builtin_postPrint(_ sl : Int, _ el : Int, _ sc : Int, _ ec: Int) -> AnyObj
 }
 
 func $builtin_send_data(_ object:AnyObject?) {
-  print("SEND", (object as! LogRecord).text)
+  let record = object as! LogRecord
+  if record.api != "$builtin_log" {
+      return
+  }
+
+  print(record.text)
 }
