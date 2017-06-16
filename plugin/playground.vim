@@ -6,6 +6,43 @@ autocmd BufEnter * call s:OnBufEnter()
 
 " When the user writes the file we'll execute the runner program
 function! s:OnBufWritePost()
+    call ExecutePlayground()
+endfunction
+
+" Init the UI when we enter a playground
+function! s:OnBufEnter()
+    " Workaround for weird completion plugins
+    if pumvisible()
+        return
+    endif
+
+    let cur_file = expand('%:p')
+    echom cur_file
+    " Check if the current buffer is in swift
+    if match(cur_file, ".playground/Contents.swift") != -1
+        let cur_bufnr = bufnr('%')
+        call InitPlaygroundUI()
+        let play_winnr = bufwinnr(cur_bufnr)
+        if play_winnr != -1
+            execute play_winnr . ' wincmd w'
+
+            " On the first time, we'll execute it. Perhaps this is slow or not
+            " ideal in some cases, and is cool for simple playgrounds.
+            " Fix with async execution
+            call ExecutePlayground()
+        endif
+    else
+        call CloseIfNeeded()
+    endif
+endfunction
+
+function! ExecutePlayground()
+    let cur_file = expand('%:p')
+    " Check if the current buffer is in swift
+    if match(cur_file, ".playground/Contents.swift") == -1
+        return
+    endif
+
     let src_root = s:path
     let cur_file = expand('%:p')
     let invocation = src_root . "/runner.sh " . cur_file
@@ -92,22 +129,6 @@ function! CloseIfNeeded()
         silent! execute play_bufnr . " wincmd w"
         silent! execute " q!"
         silent! execute cur_bufnr . " wincmd w"
-    endif
-endfunction
-
-" Init the UI when we open a playground
-function! s:OnBufEnter()
-    let cur_file = expand('%:p')
-    " Check if the current buffer is in swift
-    if match(cur_file, ".playground/Contents.swift") != -1
-        let cur_bufnr = bufnr('%')
-        call InitPlaygroundUI()
-        let play_winnr = bufwinnr(cur_bufnr)
-        if play_winnr != -1
-            execute play_winnr . ' wincmd w'
-        endif
-    else
-        call CloseIfNeeded()
     endif
 endfunction
 
