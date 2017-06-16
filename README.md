@@ -1,12 +1,14 @@
 # SwiftPlayground.vim
 
-**Play** with Swift code in Vim!
+**Play** with Swift code in Vim! 
 
 ![Preview](https://user-images.githubusercontent.com/1245820/27219080-32c7d11e-5235-11e7-979c-610ecb8f69ee.gif)
 
+## Usage
+
 It compiles the playground when you save.
 
-*Errors, Warnings, and Code Completions are provided by [iCompleteme](https://github.com/jerrymarino/icompleteme).*
+*Note: Code Completions, Errors, and Warnings are optionally powered by [iCompleteMe](https://github.com/jerrymarino/icompleteme).*
 
 ## Installation
 
@@ -23,5 +25,4 @@ Use your plugin manager of choice.
 - [vim-plug](https://github.com/junegunn/vim-plug)
   - Add `Plug 'https://github.com/jerrymarino/SwiftPlayground.vim'` to .vimrc
   - Run `:PlugInstall`
-
 
