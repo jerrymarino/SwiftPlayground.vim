@@ -29,7 +29,6 @@ function! s:OnBufEnter()
             " On the first time, we'll execute it. Perhaps this is slow or not
             " ideal in some cases, and is cool for simple playgrounds.
             " Fix with async execution
-            call ExecutePlayground()
         endif
     else
         call CloseIfNeeded()
@@ -104,6 +103,7 @@ function! InitPlaygroundUI()
     let play_winnr = bufwinnr(play_bufnr)
     if play_winnr == -1
         let play_winnr = bufwinnr(play_bufnr)
+        " Assume 40 is good
         silent! execute "botright 40 vnew" . "__Playground__"
         setlocal bufhidden=hide
         setlocal nobuflisted
@@ -114,6 +114,8 @@ function! InitPlaygroundUI()
         setlocal noswapfile
         setlocal winfixheight
         setlocal winfixwidth
+        let msg = "Loaded Swift Playground..\n:w the playground to update" 
+        call append(0, split(msg, '\v\n'))
     else
       if winnr() != play_winnr
         execute play_winnr . 'wincmd w'
