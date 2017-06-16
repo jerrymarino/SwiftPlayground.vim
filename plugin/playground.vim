@@ -7,7 +7,6 @@ autocmd BufEnter * call s:OnBufEnter()
 " When the user writes the file we'll execute the runner program
 function! s:OnBufWritePost()
     let src_root = s:path
-    echo "SRCROOT" . src_root
     let cur_file = expand('%:p')
     let invocation = src_root . "/runner.sh " . cur_file
     let result = system(invocation)
@@ -48,8 +47,8 @@ function! s:OnBufWritePost()
     " - clear it
     " - write out the new document
     let cur_bufnr = bufnr('%')
-    let scr_bufnr = bufnr('__Playground__')
-    silent! execute scr_bufnr . " wincmd w"
+    let play_bufnr = bufnr('__Playground__')
+    silent! execute bufwinnr(play_bufnr) . " wincmd w"
 
     let n_lines = line('$')
     let i = 0
@@ -59,15 +58,15 @@ function! s:OnBufWritePost()
     endwhile
     call append(0, split(doc, '\v\n'))
 
-    silent! execute cur_bufnr . " wincmd w"
+    silent! execute bufwinnr(cur_bufnr ) . " wincmd w"
 endfunction
 
 function! InitPlaygroundUI()
     " Initialize the playground
-    let scr_bufnr = bufnr('__Playground__')
-    let scr_winnr = bufwinnr(scr_bufnr)
-    if scr_winnr == -1
-        let scr_winnr = bufwinnr(scr_bufnr)
+    let play_bufnr = bufnr('__Playground__')
+    let play_winnr = bufwinnr(play_bufnr)
+    if play_winnr == -1
+        let play_winnr = bufwinnr(play_bufnr)
         silent! execute "botright 40 vnew" . "__Playground__"
         setlocal bufhidden=hide
         setlocal nobuflisted
@@ -79,18 +78,18 @@ function! InitPlaygroundUI()
         setlocal winfixheight
         setlocal winfixwidth
     else
-      if winnr() != scr_winnr
-        execute scr_winnr . 'wincmd w'
+      if winnr() != play_winnr
+        execute play_winnr . 'wincmd w'
       endif
     endif
 endfunction
 
 function! CloseIfNeeded()
     " Close the buffer if needed
-    let scr_bufnr = bufnr('__Playground__')
-    let scr_winnr = bufwinnr(scr_bufnr)
-    if scr_winnr != -1
-        silent! execute scr_bufnr . " wincmd w"
+    let play_bufnr = bufnr('__Playground__')
+    let play_winnr = bufwinnr(play_bufnr)
+    if play_winnr != -1
+        silent! execute play_bufnr . " wincmd w"
         silent! execute " q!"
         silent! execute cur_bufnr . " wincmd w"
     endif
@@ -99,10 +98,14 @@ endfunction
 " Init the UI when we open a playground
 function! s:OnBufEnter()
     let cur_file = expand('%:p')
-    let cur_bufnr = bufnr('%')
-    if match(cur_file, "Contents.swift") != -1
+    " Check if the current buffer is in swift
+    if match(cur_file, ".playground/Contents.swift") != -1
+        let cur_bufnr = bufnr('%')
         call InitPlaygroundUI()
-        execute cur_bufnr . 'wincmd w'
+        let play_winnr = bufwinnr(cur_bufnr)
+        if play_winnr != -1
+            execute play_winnr . ' wincmd w'
+        endif
     else
         call CloseIfNeeded()
     endif
