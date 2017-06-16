@@ -3,11 +3,10 @@ cd $dir
 
 mkdir -p build
 
-# For now, dump the entire file into main
-# this is likely contents.swift
+# For now, dump the entire file into main this is likely contents.swift
 cat $1 > build/main.swift
 
-swiftc \
+xcrun swiftc \
 -Xfrontend \
 -playground \
 -Xfrontend \
