@@ -1,9 +1,13 @@
+let s:path = fnamemodify(expand('<sfile>:p:h'), ':h')
+
 " Hook in to the write command
 autocmd BufWritePost * call s:OnBufWritePost()
+autocmd BufEnter * call s:OnBufEnter()
 
 " When the user writes the file we'll execute the runner program
 function! s:OnBufWritePost()
-    let src_root = resolve(expand('<sfile>:p:h'))
+    let src_root = s:path
+    echo "SRCROOT" . src_root
     let cur_file = expand('%:p')
     let invocation = src_root . "/runner.sh " . cur_file
     let result = system(invocation)
@@ -81,5 +85,26 @@ function! InitPlaygroundUI()
     endif
 endfunction
 
-call InitPlaygroundUI()
+function! CloseIfNeeded()
+    " Close the buffer if needed
+    let scr_bufnr = bufnr('__Playground__')
+    let scr_winnr = bufwinnr(scr_bufnr)
+    if scr_winnr != -1
+        silent! execute scr_bufnr . " wincmd w"
+        silent! execute " q!"
+        silent! execute cur_bufnr . " wincmd w"
+    endif
+endfunction
+
+" Init the UI when we open a playground
+function! s:OnBufEnter()
+    let cur_file = expand('%:p')
+    let cur_bufnr = bufnr('%')
+    if match(cur_file, "Contents.swift") != -1
+        call InitPlaygroundUI()
+        execute cur_bufnr . 'wincmd w'
+    else
+        call CloseIfNeeded()
+    endif
+endfunction
 

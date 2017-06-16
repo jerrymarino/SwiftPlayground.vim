@@ -1,3 +1,6 @@
+dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $dir
+
 mkdir -p build
 
 # For now, dump the entire file into main
