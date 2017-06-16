@@ -1,4 +1,3 @@
-// This is what playgrounds look like in swift!
 var a = "Hello world"
 
 func doit() -> String {
@@ -7,5 +6,14 @@ func doit() -> String {
 
 doit()
 doit()
+
+
+
+
+
+
+
+
+
 
 let r = 1

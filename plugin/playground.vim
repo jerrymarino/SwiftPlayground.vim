@@ -53,7 +53,8 @@ function! ExecutePlayground()
     " Track the line values, for they may be recorded
     " multiple times by the runtime
     let set_lines = {}
-    for line in split(result, "\n")
+    let split_lines = split(result, "\n")
+    for line in split_lines
         if has_key(set_lines, line)
             continue
         endif
@@ -65,7 +66,7 @@ function! ExecutePlayground()
         endif
         
         let target_str = split(split(line, "[")[0], ":")[0]
-        let target = str2nr(target_str)
+        let target = str2nr(target_str) + 1
         while line_num < target
             let doc = doc . "\n"
             let line_num = line_num + 1
@@ -81,8 +82,10 @@ function! ExecutePlayground()
     " error. FIXME: use errors from the runner ( QuickFix or something )
     if len(doc) == 0
         let doc = doc . result
+        let winview = {}
+    else
+        let winview = winsaveview()
     endif
-
     " This is kind of hacky.
     " - switch to the playground buffer
     " - clear it
@@ -98,6 +101,13 @@ function! ExecutePlayground()
         let i = i + 1
     endwhile
     call append(0, split(doc, '\v\n'))
+
+    " Sync buffers. FIXME: This should really be an autocmd on scroll.
+    if winview != {}
+        :call winrestview(winview)
+    else
+        :call cursor(1, 0)
+    endif
 
     silent! execute bufwinnr(cur_bufnr ) . " wincmd w"
 endfunction
@@ -132,7 +142,8 @@ function! CloseIfNeeded()
     " Close the buffer if needed
     let play_bufnr = bufnr('__Playground__')
     let play_winnr = bufwinnr(play_bufnr)
-    if play_winnr != -1
+
+    if play_winnr != -1 && play_winnr != bufnr('%')
         silent! execute play_bufnr . " wincmd w"
         silent! execute " q!"
         silent! execute cur_bufnr . " wincmd w"
