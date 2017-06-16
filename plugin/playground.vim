@@ -5,22 +5,28 @@ function! s:OnBufWritePost()
     let src_root = resolve(expand('<sfile>:p:h'))
     let invocation = src_root . "/runner.sh"
     let result = system(invocation)
-    let line_num = 0
+
+    " Build up a UI from the result
+    let line_num = 1
     let doc = ""
     for line in split(result, "\n")
-        " Logs come in looking like [1:__range__] $bultinMESSAGE
-        let target_str = split(split(line, "[")[0], ":")[0]
-        let target = str2nr(target_str)
-        while target >= line_num
-            let doc = doc . "\n"
-            let line_num = line_num + 1
-        endwhile
-        let split_value = split(line, "$builtin_log")
+        " Logs come in looking like [1:__range__] $bultin LogMessage
+        "
+        let split_value = split(line, "$builtin_log ")
         if len(split_value) < 2
             continue
         endif
+        
+        let target_str = split(split(line, "[")[0], ":")[0]
+        let target = str2nr(target_str)
+        while line_num < target
+            let doc = doc . "\n"
+            let line_num = line_num + 1
+        endwhile
+
         let line_value = split_value[1]
         let doc = doc . line_value . "\n"
+        let line_num = line_num + 1
     endfor
 
     " This is kind of hacky.
@@ -46,8 +52,17 @@ endfunction
 let scr_bufnr = bufnr('__Playground__')
 let scr_winnr = bufwinnr(scr_bufnr)
 if scr_winnr == -1
-  let scr_winnr = bufwinnr(scr_bufnr)
-  silent! execute "botright vnew" . "__Playground__"
+    let scr_winnr = bufwinnr(scr_bufnr)
+    silent! execute "botright 40 vnew" . "__Playground__"
+    setlocal bufhidden=hide
+    setlocal nobuflisted
+    setlocal buftype=nofile
+    setlocal foldcolumn=0
+    setlocal nofoldenable
+    setlocal nonumber
+    setlocal noswapfile
+    setlocal winfixheight
+    setlocal winfixwidth
 else
   if winnr() != scr_winnr
     execute scr_winnr . 'wincmd w'

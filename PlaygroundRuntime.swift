@@ -19,19 +19,19 @@ class LogRecord {
     var object_description : String = ""
     self.api = api
     print(object, terminator: "", to: &object_description)
-    text = range.text + " " + api + name + "=" + object_description
+    text = range.text + " " + api + " " + name + "=" + object_description
   }
   init(api : String, object : Any, name : String, range : SourceRange) {
     var object_description : String = ""
     self.api = api
     print(object, terminator: "", to: &object_description)
-    text = range.text + " " + api + name + "=" + object_description
+    text = range.text + " " + api + " " + name + "=" + object_description
   }
   init(api : String, object: Any, range : SourceRange) {
     var object_description : String = ""
     self.api = api
     print(object, terminator: "", to: &object_description)
-    text = range.text + " " + api + object_description
+    text = range.text + " " + api + " " + object_description
   }
   init(api: String, range : SourceRange) {
     self.api = api
