@@ -1,5 +1,8 @@
 mkdir -p build
-ditto main.swift build/main.swift
+
+# For now, dump the entire file into main
+# this is likely contents.swift
+cat $1 > build/main.swift
 
 swiftc \
 -Xfrontend \

@@ -4,7 +4,8 @@ autocmd BufWritePost * call s:OnBufWritePost()
 " When the user writes the file we'll execute the runner program
 function! s:OnBufWritePost()
     let src_root = resolve(expand('<sfile>:p:h'))
-    let invocation = src_root . "/runner.sh"
+    let cur_file = expand('%:p')
+    let invocation = src_root . "/runner.sh " . cur_file
     let result = system(invocation)
 
     " Build up a UI from the result
