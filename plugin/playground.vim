@@ -17,7 +17,6 @@ function! s:OnBufEnter()
     endif
 
     let cur_file = expand('%:p')
-    echom cur_file
     " Check if the current buffer is in swift
     if match(cur_file, ".playground/Contents.swift") != -1
         let cur_bufnr = bufnr('%')
@@ -77,6 +76,12 @@ function! ExecutePlayground()
         let doc = doc . line_value . "\n"
         let line_num = line_num + 1
     endfor
+
+    " If there is no doc parsed from StdLib, logging, then it is likely an
+    " error. FIXME: use errors from the runner ( QuickFix or something )
+    if len(doc) == 0
+        let doc = doc . result
+    endif
 
     " This is kind of hacky.
     " - switch to the playground buffer
