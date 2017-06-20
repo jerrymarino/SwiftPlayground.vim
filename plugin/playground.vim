@@ -96,8 +96,8 @@ function! ExecutePlayground()
         
         let target_str = split(split(line, "[")[0], ":")[0]
         let target = str2nr(target_str) + 1
-        while line_num < target
-            let doc = doc . "\n"
+        while line_num < target - 1
+            let doc = doc . " \n"
             let line_num = line_num + 1
         endwhile
 
