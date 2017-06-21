@@ -30,6 +30,7 @@ fi
 # Check contents.xcplayground for ios
 grep -q "target-platform='ios'" "$SRC_ROOT/contents.xcplayground"
 if [[ $? == 0 ]]; then
+    XCODE_APP_DEVELOPER_DIR=$( xcode-select -p )
     # Build and run for iOS
     xcrun swiftc \
     -Xfrontend \
@@ -39,17 +40,17 @@ if [[ $? == 0 ]]; then
     -module-name \
     Playground \
     -target \
-    x86_64-apple-ios7.0 \
+    x86_64-apple-ios8.0 \
     -sdk \
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk \
+    $XCODE_APP_DEVELOPER_DIR/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk \
     -F \
-    /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks \
+    $XCODE_APP_DEVELOPER_DIR/Toolchains/XcodeDefault.xctoolchain/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks \
     -F \
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks \
+    $XCODE_APP_DEVELOPER_DIR/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks \
     -F \
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks \
+    $XCODE_APP_DEVELOPER_DIR/Platforms/iPhoneSimulator.platform/Developer/Library/Frameworks \
     -F \
-    /Applications/Xcode.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks \
+    $XCODE_APP_DEVELOPER_DIR/Platforms/iPhoneSimulator.platform/Developer/Library/PrivateFrameworks \
     $PLAYGROUND_FLAGS \
     -o \
     main \
@@ -57,8 +58,8 @@ if [[ $? == 0 ]]; then
     $PLAYGROUND_SOURCES \
     $PLUGIN_DIR/PlaygroundRuntime.swift
 
-    # Run on the simulator by default we build for x86_64, so use the first
-    # iPhone that isn't a 5.
+    # Run on the simulator by default.
+    # We build for x86_64, so use the first iPhone that isn't a 5.
     # Find a device that is either (booted) or (shutdown)
     DEVICE=$( xcrun simctl list | grep 'iPhone [^5] .*(.*).*(.*)' | perl -pe 's/(.*\()(.*)\)+ (.*)/\2/' | sed -n 1p )
     xcrun simctl spawn $DEVICE $PWD/main
