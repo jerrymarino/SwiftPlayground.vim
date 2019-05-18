@@ -61,7 +61,7 @@ if [[ $? == 0 ]]; then
     # Run on the simulator by default.
     # We build for x86_64, so use the first iPhone that isn't a 5.
     # Find a device that is either (booted) or (shutdown)
-    DEVICE=$( xcrun simctl list | grep 'iPhone [^5] .*(.*).*(.*)' | perl -pe 's/(.*\()(.*)\)+ (.*)/\2/' | sed -n 1p )
+    DEVICE=$(xcrun simctl list | grep 'iPhone [^5] .*(.*).*(.*)' | perl -ne 'print "$&\n" if /([A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12})/' | sed -n 1p )
     xcrun simctl spawn $DEVICE $PWD/main
 else
     # Build and run for the host target
