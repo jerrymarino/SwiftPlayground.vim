@@ -28,7 +28,7 @@ else
 fi
 
 # Check contents.xcplayground for ios
-grep -q "target-platform='ios'" "$SRC_ROOT/contents.xcplayground"
+grep -q "target-platform='ios'" "$SRC_ROOT/contents.xcplayground" &>/dev/null
 if [[ $? == 0 ]]; then
     XCODE_APP_DEVELOPER_DIR=$( xcode-select -p )
     # Build and run for iOS
