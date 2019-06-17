@@ -5,6 +5,7 @@
 //
 // @see the transform logic here
 // https://github.com/apple/swift/blob/master/lib/Sema/PlaygroundTransform.cpp
+// https://github.com/apple/swift/blob/e156713/test/PlaygroundTransform/Inputs/PlaygroundsRuntime.swift
 
 func __builtin_log<T>(_ object: T, _ name: String, _ sl: Int, _ el: Int, _ sc: Int, _ ec: Int) -> AnyObject? {
     return LogRecord(api: "$builtin_log", object: object, name: name, range: SourceRange(sl: sl, el: el, sc: sc, ec: ec))
