@@ -37,8 +37,9 @@ if grep -q "target-platform='ios'" "$SRC_ROOT/contents.xcplayground" &>/dev/null
 
     rm -rf "$ASSET_DIR"
     mkdir -p "$ASSET_DIR"
-    cp "$PLUGIN_DIR/PlaygroundUIRuntime.swift" .
-    echo "private let assetDirectory = \"$ASSET_DIR\"" >> ./PlaygroundUIRuntime.swift
+    cat "$PLUGIN_DIR/PlaygroundRuntimeCommon.swift" > ./PlaygroundRuntime.swift
+    cat "$PLUGIN_DIR/PlaygroundRuntimeUI.swift" >> ./PlaygroundRuntime.swift
+    echo "private let assetDirectory = \"$ASSET_DIR\"" >> ./PlaygroundRuntime.swift
 
     # Build and run for iOS
     xcrun swiftc \
@@ -59,7 +60,7 @@ if grep -q "target-platform='ios'" "$SRC_ROOT/contents.xcplayground" &>/dev/null
     main \
     main.swift \
     $PLAYGROUND_SOURCES \
-    PlaygroundUIRuntime.swift
+    PlaygroundRuntime.swift
 
     # Run on the simulator by default.
     # We build for x86_64, so use the first iPhone that isn't a 5.
@@ -67,6 +68,9 @@ if grep -q "target-platform='ios'" "$SRC_ROOT/contents.xcplayground" &>/dev/null
     DEVICE=$(xcrun simctl list | grep 'iPhone [^5] .*(.*).*(.*)' | perl -ne 'print "$&\n" if /([A-F0-9]{8}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{4}-[A-F0-9]{12})/' | sed -n 1p )
     xcrun simctl spawn "$DEVICE" ./main
 else
+    cat "$PLUGIN_DIR/PlaygroundRuntimeCommon.swift" > ./PlaygroundRuntime.swift
+    cat "$PLUGIN_DIR/PlaygroundRuntime.swift" >> ./PlaygroundRuntime.swift
+
     # Build and run for the host target
     # This invocation theoretically shouldn't need any OSX specifics at this
     # level.
@@ -82,7 +86,7 @@ else
     main \
     main.swift \
     $PLAYGROUND_SOURCES \
-    "$PLUGIN_DIR"/PlaygroundRuntime.swift
+    PlaygroundRuntime.swift
 
     ./main
 fi
