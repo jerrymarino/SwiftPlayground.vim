@@ -11,7 +11,7 @@ let s:LastSwiftTopline = 0
 
 " When the user writes the file we'll execute the runner program
 function! s:OnBufWritePost()
-    call ExecutePlayground()
+    call SwiftPlaygroundExecute()
 endfunction
 
 " Init the UI when we enter a playground
@@ -25,7 +25,7 @@ function! s:OnBufEnter()
     " Check if the current buffer is in swift
     if match(cur_file, ".playground/Contents.swift") != -1
         let cur_bufnr = bufnr('%')
-        call InitPlaygroundUI()
+        call s:InitPlaygroundUI()
         let play_winnr = bufwinnr(cur_bufnr)
         if play_winnr != -1
             execute play_winnr . ' wincmd w'
@@ -35,11 +35,11 @@ function! s:OnBufEnter()
             " Fix with async execution
         endif
     else
-        call CloseIfNeeded()
+        call SwiftPlaygroundCloseIfNeeded()
     endif
 endfunction
 
-function! SyncBuffers()
+function! s:SyncBuffers()
     let topline = line("w0")
 
     if topline != s:LastSwiftTopline
@@ -60,14 +60,14 @@ function! SyncBuffers()
 endfunction
 
 function! s:OnCursorMovedI()
-    call SyncBuffers()
+    call s:SyncBuffers()
 endfunction
 
 function! s:OnCursorMoved()
-    call SyncBuffers()
+    call s:SyncBuffers()
 endfunction
 
-function! ExecutePlayground()
+function! SwiftPlaygroundExecute()
     let cur_file = expand('%:p')
 
     let src_root = s:path
@@ -93,7 +93,7 @@ function! ExecutePlayground()
         if len(split_value) < 2
             continue
         endif
-        
+
         let target_str = split(split(line, "[")[0], ":")[0]
         let target = str2nr(target_str) + 1
         while line_num < target - 1
@@ -141,7 +141,7 @@ function! ExecutePlayground()
     silent! execute bufwinnr(cur_bufnr ) . " wincmd w"
 endfunction
 
-function! InitPlaygroundUI()
+function! s:InitPlaygroundUI()
     " Initialize the playground
     let play_bufnr = bufnr('__Playground__')
     let play_winnr = bufwinnr(play_bufnr)
@@ -167,7 +167,7 @@ function! InitPlaygroundUI()
     endif
 endfunction
 
-function! CloseIfNeeded()
+function! SwiftPlaygroundCloseIfNeeded()
     " Close the buffer if needed
     let play_bufnr = bufnr('__Playground__')
     let play_winnr = bufwinnr(play_bufnr)
