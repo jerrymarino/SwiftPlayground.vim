@@ -7,6 +7,8 @@ autocmd BufEnter * call s:OnBufEnter()
 autocmd CursorMoved *.playground/Contents.swift call s:OnCursorMoved()
 autocmd CursorMovedI *.playground/Contents.swift call s:OnCursorMovedI()
 
+command SwiftPlaygroundPreviewImage call s:PreviewImage()
+
 let s:LastSwiftTopline = 0
 
 " When the user writes the file we'll execute the runner program
@@ -87,15 +89,14 @@ function! SwiftPlaygroundExecute()
         if has_key(set_lines, line)
             continue
         endif
-        " Logs come in looking like [1:__range__] $bultin LogMessage
-        "
+        " Logs come in looking like [__range__] $builtin LogMessage
         let split_value = split(line, "$builtin_log ")
         if len(split_value) < 2
             continue
         endif
 
-        let target_str = split(split(line, "[")[0], ":")[0]
-        let target = str2nr(target_str) + 1
+        let range = s:ParseLogPrefix(line, " ")
+        let target = range[0][0] + 1
         while line_num < target - 1
             let doc = doc . " \n"
             let line_num = line_num + 1
@@ -141,6 +142,21 @@ function! SwiftPlaygroundExecute()
     silent! execute bufwinnr(cur_bufnr ) . " wincmd w"
 endfunction
 
+function! s:ParseLogPrefix(record, separator)
+    let prefix = substitute(a:record,
+                            \ '\[\([0-9\-:]*\)\]' .  a:separator . '.*',
+                            \ '\1',
+                            \ "g")
+    let range = split(prefix, '-')
+    if len(range) != 2
+        return []
+    endif
+    let [start, end] = range
+    let [start_line, start_col] = map(split(start, ":"), 'str2nr(v:val)')
+    let [end_line, end_col] = map(split(end, ":"), 'str2nr(v:val)')
+    return [[start_line, start_col], [end_line, end_col]]
+endfunction
+
 function! s:InitPlaygroundUI()
     " Initialize the playground
     let play_bufnr = bufnr('__Playground__')
@@ -179,3 +195,46 @@ function! SwiftPlaygroundCloseIfNeeded()
     endif
 endfunction
 
+function! s:PreviewImage()
+  let current_line = line('.')
+  let current_col = col('.')
+  let cur_dir = expand('%:p:h')
+  let src_uuid = trim(system('printf "%s" ' . shellescape(cur_dir) . " | md5"))
+  let asset_dir = "/tmp/SwiftPlaygroundAssets-" . src_uuid
+  let matched_fname = ""
+  let matched_col = -1
+  for name in globpath(asset_dir, "*.png", 0, 1)
+      " Names are in format [_range_]_$builtin_repr@2x.png.
+      if len(split(name, "_$builtin_log_")) < 2
+          continue
+      endif
+
+      let range = s:ParseLogPrefix(fnamemodify(name, ":t"), "_")
+      if empty(range)
+          continue
+      endif
+
+      " Check if entry is within range of current cursor position.
+      let [start, end] = range
+      if start[0] <= current_line && end[0] >= current_line &&
+        \ start[1] <= current_col && end[1] >= current_col
+          let matched_fname = name
+          break
+      endif
+
+      " Otherwise default to an entry matching the end line with the
+      " greatest column.
+      if end[0] == current_line && matched_col < end[1]
+          let matched_fname = name
+          let matched_col = end[1]
+      end
+  endfor
+
+  if empty(matched_fname)
+      echo "No image can be rendered at the current position."
+  else
+      call system("qlmanage -p " .
+                  \ shellescape(matched_fname) .
+                  \ ">/dev/null 2>&1 &")
+  endif
+endfunction
