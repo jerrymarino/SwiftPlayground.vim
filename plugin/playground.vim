@@ -196,45 +196,45 @@ function! SwiftPlaygroundCloseIfNeeded()
 endfunction
 
 function! s:PreviewImage()
-  let current_line = line('.')
-  let current_col = col('.')
-  let cur_dir = expand('%:p:h')
-  let src_uuid = trim(system('printf "%s" ' . shellescape(cur_dir) . " | md5"))
-  let asset_dir = "/tmp/SwiftPlaygroundAssets-" . src_uuid
-  let matched_fname = ""
-  let matched_col = -1
-  for name in globpath(asset_dir, "*.png", 0, 1)
-      " Names are in format [_range_]_$builtin_repr@2x.png.
-      if len(split(name, "_$builtin_log_")) < 2
-          continue
-      endif
+    let current_line = line('.')
+    let current_col = col('.')
+    let cur_dir = expand('%:p:h')
+    let src_uuid = trim(system('printf "%s" ' . shellescape(cur_dir) . " | md5"))
+    let asset_dir = "/tmp/SwiftPlaygroundAssets-" . src_uuid
+    let matched_fname = ""
+    let matched_col = -1
+    for name in globpath(asset_dir, "*.png", 0, 1)
+        " Names are in format [_range_]_$builtin_repr@2x.png.
+        if len(split(name, "_$builtin_log_")) < 2
+            continue
+        endif
 
-      let range = s:ParseLogPrefix(fnamemodify(name, ":t"), "_")
-      if empty(range)
-          continue
-      endif
+        let range = s:ParseLogPrefix(fnamemodify(name, ":t"), "_")
+        if empty(range)
+            continue
+        endif
 
-      " Check if entry is within range of current cursor position.
-      let [start, end] = range
-      if start[0] <= current_line && end[0] >= current_line &&
-        \ start[1] <= current_col && end[1] >= current_col
-          let matched_fname = name
-          break
-      endif
+        " Check if entry is within range of current cursor position.
+        let [start, end] = range
+        if start[0] <= current_line && end[0] >= current_line &&
+          \ start[1] <= current_col && end[1] >= current_col
+            let matched_fname = name
+            break
+        endif
 
-      " Otherwise default to an entry matching the end line with the
-      " greatest column.
-      if end[0] == current_line && matched_col < end[1]
-          let matched_fname = name
-          let matched_col = end[1]
-      end
-  endfor
+        " Otherwise default to an entry matching the end line with the
+        " greatest column.
+        if end[0] == current_line && matched_col < end[1]
+            let matched_fname = name
+            let matched_col = end[1]
+        end
+    endfor
 
-  if empty(matched_fname)
-      echo "No image can be rendered at the current position."
-  else
-      call system("qlmanage -p " .
-                  \ shellescape(matched_fname) .
-                  \ ">/dev/null 2>&1 &")
-  endif
+    if empty(matched_fname)
+        echo "No image can be rendered at the current position."
+    else
+        call system("qlmanage -p " .
+                    \ shellescape(matched_fname) .
+                    \ ">/dev/null 2>&1 &")
+    endif
 endfunction
