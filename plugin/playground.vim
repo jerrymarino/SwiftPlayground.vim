@@ -10,6 +10,7 @@ autocmd CursorMovedI *.playground/Contents.swift call s:OnCursorMovedI()
 command SwiftPlaygroundPreviewImage call s:PreviewImage()
 
 let s:LastSwiftTopline = 0
+let s:BuildDirectory = ""
 
 " When the user writes the file we'll execute the runner program
 function! s:OnBufWritePost()
@@ -85,6 +86,7 @@ function! SwiftPlaygroundExecute()
     " multiple times by the runtime
     let set_lines = {}
     let split_lines = split(result, "\n")
+    let s:BuildDirectory = split_lines[0]
     for line in split_lines
         if has_key(set_lines, line)
             continue
@@ -196,11 +198,14 @@ function! SwiftPlaygroundCloseIfNeeded()
 endfunction
 
 function! s:PreviewImage()
+    if empty(s:BuildDirectory)
+        call SwiftPlaygroundExecute()
+    endif
+
     let current_line = line('.')
     let current_col = col('.')
     let cur_dir = expand('%:p:h')
-    let src_uuid = trim(system('printf "%s" ' . shellescape(cur_dir) . " | md5"))
-    let asset_dir = "/tmp/SwiftPlaygroundAssets-" . src_uuid
+    let asset_dir = simplify(s:BuildDirectory . "/Assets")
     let matched_fname = ""
     let matched_col = -1
     for name in globpath(asset_dir, "*.png", 0, 1)

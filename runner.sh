@@ -6,13 +6,16 @@ PLUGIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Derive a tmp build directory
 SRC_UUID="$( echo -n "$SRC_ROOT" | md5 )"
 BUILD_DIR="/tmp/SwiftPlayground-$SRC_UUID"
-ASSET_DIR="/tmp/SwiftPlaygroundAssets-$SRC_UUID"
+ASSET_DIR="$BUILD_DIR/Assets"
 
 # Remove if it already existed. Errors seem to be swallowed otherwise
 rm -rf "$BUILD_DIR"
 
 mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR" || exit 1
+
+# Log build directory for plugin scripts.
+echo "$BUILD_DIR"
 
 # For now, dump the entire file into main this is likely contents.swift
 # Consider writing the buffer instead
