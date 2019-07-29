@@ -4,7 +4,7 @@ SRC_ROOT=$(dirname "$1")
 PLUGIN_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Derive a tmp build directory
-SRC_UUID="$( echo -n "$SRC_ROOT" | md5 )"
+SRC_UUID="$( echo -n "$SRC_ROOT" | (md5 2>/dev/null || md5sum | cut -d " " -f1) )"
 BUILD_DIR="/tmp/SwiftPlayground-$SRC_UUID"
 ASSET_DIR="$BUILD_DIR/Assets"
 
@@ -75,9 +75,7 @@ else
     cat "$PLUGIN_DIR/PlaygroundRuntime.swift" >> ./PlaygroundRuntime.swift
 
     # Build and run for the host target
-    # This invocation theoretically shouldn't need any OSX specifics at this
-    # level.
-    xcrun swiftc \
+    swiftc \
     -Xfrontend \
     -debugger-support \
     -Xfrontend \
