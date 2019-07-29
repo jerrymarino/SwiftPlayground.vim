@@ -26,3 +26,8 @@ Use your plugin manager of choice.
   - Add `Plug 'https://github.com/jerrymarino/SwiftPlayground.vim'` to .vimrc
   - Run `:PlugInstall`
 
+## Ecosystem
+
+The following libraries use the framework provided by SwiftPlayground.vim to add similar functionality to other editors:
+
+- [swift-playground-mode](https://gitlab.com/michael.sanders/swift-playground-mode): Emacs support for Swift playgrounds.
