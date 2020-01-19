@@ -7,7 +7,7 @@ autocmd BufEnter * call s:OnBufEnter()
 autocmd CursorMoved *.playground/Contents.swift call s:OnCursorMoved()
 autocmd CursorMovedI *.playground/Contents.swift call s:OnCursorMovedI()
 
-command SwiftPlaygroundPreviewImage call s:PreviewImage()
+command! SwiftPlaygroundPreviewImage call s:PreviewImage()
 
 let s:LastSwiftTopline = 0
 let s:BuildDirectory = ""
